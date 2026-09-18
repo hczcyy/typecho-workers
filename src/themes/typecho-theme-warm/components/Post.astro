@@ -7,7 +7,7 @@ import { createContext } from '@/lib/context';
 import { optimizeContentImages } from '@/lib/image-transform';
 import type { ThemePostProps } from '@/lib/theme-props';
 import WarmShell from './WarmShell.astro';
-import WarmComments from './WarmComments.astro';
+import WarmTwikoo from './WarmTwikoo.astro';
 import WarmNoteMedia from './WarmNoteMedia.astro';
 import WarmToc from './WarmToc.astro';
 import { formatWarmDate, plainExcerpt, prepareArticleToc, readingMinutes, warmArticleSummary, warmSettings } from './warm';
@@ -103,13 +103,6 @@ const description = isNote
     )}
   </article>
 
-  {(post.allowComment || commentPagination.totalComments > 0) && (
-    <WarmComments
-      cid={post.cid}
-      componentLoadMode={settings.commentComponentLoadMode}
-      initialLoadMode={settings.commentInitialLoadMode}
-      cooldownSeconds={options.commentsPostIntervalEnable ? (options.commentsPostInterval || 60) : 0}
-    />
-  )}
+  {post.allowComment && <WarmTwikoo />}
 
 </WarmShell>
