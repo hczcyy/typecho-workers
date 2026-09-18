@@ -3,42 +3,14 @@
 // 替换 WarmComments，使用 Twikoo 评论系统
 ---
 
-<div id="twikoo"></div>
-<link href="https://m.mrhe.net/themes/typecho-theme-warm/style.css" rel="stylesheet">
-
-<script is:inline src="https://registry.npmmirror.com/twikoo/1.7.24/files/dist/twikoo.min.js"></script>
-<script is:inline>
-function initTwikoo() {
-  if (typeof twikoo === 'undefined' || !twikoo.init) {
-    setTimeout(initTwikoo, 100);
-    return;
-  }
-
-  var path = window.location.pathname.replace(/\/$/, '').replace(/\/index\.html$/, '') || '/';
-
-  if (window.__twikoo_path === path) return;
-  window.__twikoo_path = path;
-
-  var container = document.getElementById('twikoo');
-  if (container) container.innerHTML = '';
-
-  twikoo.init({
-    envId: 'https://tw.mrhe.net',
-    el: '#twikoo',
-    path: path,
-  });
-}
-
-setTimeout(initTwikoo, 0);
-
-// Astro View Transitions 兼容
-document.addEventListener('astro:page-load', function() {
-  window.__twikoo_path = null;
-  setTimeout(initTwikoo, 0);
-});
-
-// PJAX 兼容
-document.addEventListener('pjax:complete', function() {
-  setTimeout(initTwikoo, 0);
-});
+<div id="tcomment"></div>
+<script src="https://cdn.jsdelivr.net/npm/twikoo@1.7.24/dist/twikoo.min.js"></script>
+<script>
+twikoo.init({
+  envId: 'https://tw.mrhe.net', // 腾讯云环境填 envId；Vercel 环境填地址（https://xxx.vercel.app）
+  el: '#tcomment', // 容器元素
+  // region: 'ap-shanghai', // 环境地域，默认为 ap-shanghai，腾讯云环境填 ap-shanghai 或 ap-guangzhou；Vercel 环境不填
+  // path: location.pathname, // 用于区分不同文章的自定义 js 路径，如果您的文章路径不是 location.pathname，需传此参数
+  // lang: 'zh-CN', // 用于手动设定评论区语言，支持的语言列表 https://github.com/twikoojs/twikoo/blob/main/src/client/utils/i18n/index.js
+})
 </script>
