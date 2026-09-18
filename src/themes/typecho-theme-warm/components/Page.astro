@@ -2,13 +2,13 @@
 import type { ThemePageProps } from '@/lib/theme-props';
 import { optimizeContentImages } from '@/lib/image-transform';
 import WarmShell from './WarmShell.astro';
-import WarmComments from './WarmComments.astro';
+import WarmTwikoo from './WarmTwikoo.astro';
 import { formatWarmDate, plainExcerpt, warmSettings } from './warm';
 
 type Props = ThemePageProps;
 const {
   options, urls, pages, sidebarData, currentPath, pluginCtx,
-  page, commentPagination,
+  page,
 } = Astro.props;
 const isAbout = page.slug.toLowerCase() === 'about' || page.title === '关于';
 const settings = warmSettings(options);
@@ -36,12 +36,5 @@ const settings = warmSettings(options);
     <div class="warm-prose" view-image itemprop="articleBody" set:html={optimizeContentImages(page.content, settings.imageOptimizeParams, urls.siteUrl)} />
   </article>
 
-  {(page.allowComment || commentPagination.totalComments > 0) && (
-    <WarmComments
-      cid={page.cid}
-      componentLoadMode={settings.commentComponentLoadMode}
-      initialLoadMode={settings.commentInitialLoadMode}
-      cooldownSeconds={options.commentsPostIntervalEnable ? (options.commentsPostInterval || 60) : 0}
-    />
-  )}
+  {page.allowComment && <WarmTwikoo />}
 </WarmShell>
