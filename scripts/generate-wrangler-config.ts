@@ -16,6 +16,7 @@ export interface CloudflareBuildEnv {
   TYPECHO_D1_DATABASE_NAME?: string;
   TYPECHO_R2_BUCKET_NAME?: string;
   TYPECHO_KV_NAMESPACE_ID?: string;
+  TYPECHO_SESSION_KV_NAMESPACE_ID?: string;
   TYPECHO_PBKDF2_ITERATIONS?: string;
 }
 
@@ -53,7 +54,24 @@ export function generateWranglerToml(env: CloudflareBuildEnv): string {
   const d1DatabaseName = required(env, 'TYPECHO_D1_DATABASE_NAME');
   const r2BucketName = required(env, 'TYPECHO_R2_BUCKET_NAME');
   const kvNamespaceId = env.TYPECHO_KV_NAMESPACE_ID?.trim() || '';
+  const sessionKvNamespaceId = env.TYPECHO_SESSION_KV_NAMESPACE_ID?.trim() || '';
   const iterations = pbkdf2Iterations(env);
+
+  const cacheKvBlock = kvNamespaceId
+    ? `[[kv_namespaces]]
+binding = "TYPECHO_CACHE"
+id = ${tomlString(kvNamespaceId)}
+
+`
+    : '';
+
+  const sessionKvBlock = sessionKvNamespaceId
+    ? `[[kv_namespaces]]
+binding = "SESSION"
+id = ${tomlString(sessionKvNamespaceId)}
+
+`
+    : '';
 
   return `${GENERATED_CONFIG_MARKER}
 # Binding metadata comes from Cloudflare build variables. Secrets are never written here.
@@ -85,11 +103,7 @@ migrations_dir = "drizzle"
 binding = "BUCKET"
 bucket_name = ${tomlString(r2BucketName)}
 
-${kvNamespaceId ? `[[kv_namespaces]]
-binding = "TYPECHO_CACHE"
-id = ${tomlString(kvNamespaceId)}
-
-` : ''}# Workers Logs persistence: [metrics] phase samples need to land in the
+${cacheKvBlock}${sessionKvBlock}# Workers Logs persistence: [metrics] phase samples need to land in the
 # stored logs to be queryable; real-time tail alone keeps them invisible.
 [observability]
 enabled = true
