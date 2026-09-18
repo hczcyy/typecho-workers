@@ -210,6 +210,21 @@ const coreMiddleware = defineMiddleware(async (context, next) => {
   const pagePattern = options.pagePattern as string | undefined;
   const categoryPattern = options.categoryPattern as string | undefined;
 
+  // ── /{cid}.html 作为文章永久链接的特判 ──
+  // 必须在 isBuiltInRoute 判断之前处理，否则 /1.html 会被 BUILT_IN_ROUTES
+  // 里的 /^\/[^/]+\.html$/ 判为内置路由并跳过重写，最终 404。
+  const cidHtmlMatch = path.match(/^\/(\d+)\.html$/);
+  if (cidHtmlMatch) {
+    const cid = parseInt(cidHtmlMatch[1], 10);
+    const row = await db.query.contents.findFirst({
+      columns: { type: true },
+      where: and(eq(schema.contents.cid, cid), publishedPostCondition()),
+    });
+    if (row && row.type === 'post') {
+      return context.rewrite(`/archives/${cid}/`);
+    }
+  }
+
   const isBuiltInRoute = BUILT_IN_ROUTES.some((re) => re.test(path));
 
   if (
