@@ -1,0 +1,44 @@
+---
+// WarmTwikoo.astro
+// 替换 WarmComments，使用 Twikoo 评论系统
+---
+
+<div id="twikoo"></div>
+<link href="https://m.mrhe.net/themes/typecho-theme-warm/style.css" rel="stylesheet">
+
+<script is:inline src="https://registry.npmmirror.com/twikoo/1.7.24/files/dist/twikoo.min.js"></script>
+<script is:inline>
+function initTwikoo() {
+  if (typeof twikoo === 'undefined' || !twikoo.init) {
+    setTimeout(initTwikoo, 100);
+    return;
+  }
+
+  var path = window.location.pathname.replace(/\/$/, '').replace(/\/index\.html$/, '') || '/';
+
+  if (window.__twikoo_path === path) return;
+  window.__twikoo_path = path;
+
+  var container = document.getElementById('twikoo');
+  if (container) container.innerHTML = '';
+
+  twikoo.init({
+    envId: 'https://tw.mrhe.net',
+    el: '#twikoo',
+    path: path,
+  });
+}
+
+setTimeout(initTwikoo, 0);
+
+// Astro View Transitions 兼容
+document.addEventListener('astro:page-load', function() {
+  window.__twikoo_path = null;
+  setTimeout(initTwikoo, 0);
+});
+
+// PJAX 兼容
+document.addEventListener('pjax:complete', function() {
+  setTimeout(initTwikoo, 0);
+});
+</script>
